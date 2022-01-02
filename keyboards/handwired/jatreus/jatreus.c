@@ -25,8 +25,6 @@ void toggle_led_animation(void);
 #define LED_LAYER_RIGHT     B3
 #define LED_LAYER_LEFT      F6
 
-#define LED_ANIMATION_TICK 500
-
 enum layer_names {
     _BASE,
     _SYMBOLS,
@@ -45,8 +43,11 @@ const char *animation_programs;
 // const? it upsets the compiler...
 char flash[] = {0b0000, 0b1111};
 char fancy_flash[] = {0b1001, 0b0110, 0b0000, 0b1111, 0b0000};
+char colours_and_blue[] = {0b1111, 0b0110, 0b0110};
+char binary_flash[] = {0b0000, 0b0001, 0b0010, 0b0011, 0b0100, 0b0101, 0b0110, 0b0111, 0b1001, 0b1010, 0b1011, 0b1100, 0b1101, 0b1110, 0b1111};
 
 static uint16_t led_animation_timer;
+int led_animation_tick_time = 1;
 bool led_animation_on = false;
 int led_animation_counter = 0;
 int led_animation_mode = 0;
@@ -83,7 +84,7 @@ void keyboard_pre_init_kb(void) {
 
 void led_animation_update(void) {
     if (led_animation_on) {
-        if (timer_elapsed(led_animation_timer) > LED_ANIMATION_TICK) {
+        if (timer_elapsed(led_animation_timer) > led_animation_tick_time ) {
             led_animation_timer = timer_read();
             led_animation_counter++;
             if (led_animation_counter >= led_animation_counter_max) {
@@ -96,7 +97,7 @@ void led_animation_update(void) {
 
 void toggle_led_animation(void) {
     led_animation_mode++;
-    if (led_animation_mode > 3) {
+    if (led_animation_mode > 5) {
         led_animation_mode = 0;
     }
 
@@ -114,13 +115,27 @@ void toggle_led_animation(void) {
             current_led_animation = flash;
             led_animation_counter_max = 2;
             led_animation_on = 1;
+            led_animation_tick_time = 400;
             break;
         case 3:
             current_led_animation = fancy_flash;
             led_animation_counter_max = 5;
             led_animation_on = 1;
+            led_animation_tick_time = 400;
             break;
-    }
+        case 4:
+            current_led_animation = colours_and_blue;
+            led_animation_counter_max = 3;
+            led_animation_on = 1;
+            led_animation_tick_time = 200;
+            break;
+        case 5:
+            current_led_animation = binary_flash;
+            led_animation_counter_max = 15;
+            led_animation_on = 1;
+            led_animation_tick_time = 100;
+            break;
+    } // Update the (if) statement at the  top of this fn if adding cases to this switch!
 }
 
 void set_leds(char leds) {
@@ -183,22 +198,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 void set_layer_led_0(void) {
     writePinLow(LED_LAYER_LEFT);
     writePinLow(LED_LAYER_RIGHT);
-
-    // DEBUG
-    //writePinLow(LED_LEFT_BLUE);
-    //writePinLow(LED_LEFT_GREEN);
-    //writePinLow(LED_RIGHT_RED);
-    //writePinLow(LED_RIGHT_BLUE);
 }
 void set_layer_led_1(void) {
     writePinHigh(LED_LAYER_LEFT);
     writePinLow(LED_LAYER_RIGHT);
-
-    // DEBUG
-    //writePinHigh(LED_LEFT_BLUE);
-    //writePinHigh(LED_LEFT_GREEN);
-    //writePinHigh(LED_RIGHT_RED);
-    //writePinHigh(LED_RIGHT_BLUE);
 }
 void set_layer_led_2(void) {
     writePinLow(LED_LAYER_LEFT);
