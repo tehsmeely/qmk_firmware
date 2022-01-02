@@ -15,4 +15,8 @@
 	{ K300,  K301,  K302,  K303,  K304,  K305,  K306,  K307,  K308,  K309,  K310 }  \
 }
 
+enum custom_keycodes {
+    CK_LED_ANIM_TOGGLE = SAFE_RANGE
+};
+
 #endif
